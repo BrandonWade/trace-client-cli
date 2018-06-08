@@ -37,8 +37,8 @@ func (c *Connection) Open(w *http.ResponseWriter, r *http.Request) {
 }
 
 // Dial - sends an http request to be upgraded to a websocket
-func (c *Connection) Dial(host string) {
-	url := url.URL{Scheme: "ws", Host: host}
+func (c *Connection) Dial(host, path string) {
+	url := url.URL{Scheme: "ws", Host: host, Path: path}
 	conn, _, err := websocket.DefaultDialer.Dial(url.String(), nil)
 	if err != nil {
 		log.Fatal("error sending websocket http request")
