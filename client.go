@@ -28,8 +28,9 @@ func init() {
 func main() {
 	host := os.Getenv("TRACE_SERVER_HOST")
 	conn := contact.NewConnection(bufferSize)
-	conn.Dial(host, "/sync")
 
-	conn.WriteJSON(contact.Message{nil, "message body"})
-	conn.Close()
+	conn.Dial(host, "/sync")
+	defer conn.Close()
+
+	conn.WriteJSON(contact.Message{nil, "/this/is/a/test/file"})
 }
