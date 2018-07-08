@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/BrandonWade/contact"
   packages = ["."]
-  revision = "19d04f362121225760cd5e6eaba198a9a63badb4"
+  revision = "3b56da61967a739e5d7a79d3952bba9b38f2f276"
 
 [[projects]]
   name = "github.com/gorilla/websocket"

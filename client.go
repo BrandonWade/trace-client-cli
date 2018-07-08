@@ -32,5 +32,5 @@ func main() {
 	conn.Dial(host, "/sync")
 	defer conn.Close()
 
-	conn.WriteJSON(contact.Message{nil, "/this/is/a/test/file"})
+	conn.Write("/this/is/a/test/file")
 }

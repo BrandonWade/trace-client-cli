@@ -75,6 +75,6 @@ func (c *Connection) WriteBinary(data []byte) {
 
 // Close - closes an open websocket connection
 func (c *Connection) Close() {
-	c.conn.WriteMessage(websocket.CloseNormalClosure, []byte(""))
+	c.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 	c.conn.Close()
 }
