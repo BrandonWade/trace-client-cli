@@ -1,10 +1,13 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"strconv"
+	"strings"
 
 	"github.com/BrandonWade/contact"
 	"github.com/BrandonWade/synth"
@@ -13,6 +16,7 @@ import (
 
 var (
 	bufferSize int
+	serverHost string
 	syncDir    string
 )
 
@@ -31,10 +35,12 @@ func init() {
 }
 
 func main() {
-	host := os.Getenv("TRACE_SERVER_HOST")
+	fmt.Printf("Syncing directory %s with server...\n", syncDir)
+
+	serverHost := os.Getenv("TRACE_SERVER_HOST")
 	conn := contact.NewConnection(bufferSize)
 
-	conn.Dial(host, "/sync")
+	conn.Dial(serverHost, "/sync")
 	defer conn.Close()
 
 	// Get the list of files from the filesystem
@@ -62,5 +68,40 @@ func main() {
 
 		path := filepath.ToSlash(data)
 		newFiles = append(newFiles, path)
+	}
+
+	promptDownload(newFiles)
+}
+
+func promptDownload(files []string) {
+	for _, file := range files {
+		fmt.Println(file)
+	}
+	fmt.Println()
+
+	reader := bufio.NewReader(os.Stdin)
+	for {
+		fmt.Printf("Download %d new file(s)? [y/n]: ", len(files))
+
+		response, err := reader.ReadString('\n')
+		if err != nil {
+			log.Fatal("error reading download prompt input")
+		}
+
+		input := strings.ToLower(response[:len(response)-1])
+		if input == "y" || input == "n" {
+			if input == "y" {
+				downloadFiles(files)
+			}
+
+			break
+		}
+	}
+}
+
+func downloadFiles(files []string) {
+	for _, file := range files {
+		// TODO: Implement
+		fmt.Println(file)
 	}
 }
