@@ -37,10 +37,10 @@ func init() {
 func main() {
 	fmt.Printf("Syncing directory %s with server...\n", syncDir)
 
-	serverHost := os.Getenv("TRACE_SERVER_HOST")
+	serverHost = os.Getenv("TRACE_SERVER_HOST")
 	conn := contact.NewConnection(bufferSize)
 
-	conn.Dial(serverHost, "/sync")
+	conn.Dial(serverHost, "/sync", nil)
 	defer conn.Close()
 
 	// Get the list of files from the filesystem
@@ -101,7 +101,10 @@ func promptDownload(files []string) {
 
 func downloadFiles(files []string) {
 	for _, file := range files {
-		// TODO: Implement
-		fmt.Println(file)
+		params := make(map[string]string)
+		params["file"] = file
+
+		conn := contact.NewConnection(bufferSize)
+		conn.Dial(serverHost, "/download", params)
 	}
 }
