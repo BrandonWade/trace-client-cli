@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"log"
 	"os"
@@ -71,8 +72,13 @@ func main() {
 	}
 
 	promptDownload(newFiles)
+
+	// TODO: This is a hack to let the goroutines finish running before terminating
+	for {
+	}
 }
 
+// promptDownload - prompt the user to download all new files from the server
 func promptDownload(files []string) {
 	for _, file := range files {
 		fmt.Println(file)
@@ -99,6 +105,7 @@ func promptDownload(files []string) {
 	}
 }
 
+// downloadFiles - download the provided list of files from the server
 func downloadFiles(files []string) {
 	for _, file := range files {
 		params := make(map[string]string)
@@ -106,5 +113,47 @@ func downloadFiles(files []string) {
 
 		conn := contact.NewConnection(bufferSize)
 		conn.Dial(serverHost, "/download", params)
+
+		go saveFile(conn, file)
 	}
+}
+
+// saveFile - read a file from the server and save it to disk
+func saveFile(conn *contact.Connection, file string) {
+	filePath := syncDir + file
+
+	filePtr, err := os.Create(filePath)
+	if err != nil {
+		log.Printf("error creating file %s\n", filePath)
+	}
+	defer filePtr.Close()
+
+	buffer := bufio.NewWriter(filePtr)
+	for {
+		// Get the next file block from the server
+		_, data, err := conn.Read()
+		if err != nil {
+			log.Printf("error reading file %s contents from connection\n", filePath)
+			return
+		}
+
+		// An empty message indicates the end of the file
+		// NOTE: Is this necessary? Might be able to just close the Connection instead
+		if len(data) == 0 {
+			break
+		}
+
+		// Remove any trailing NUL bytes
+		data = bytes.TrimRight(data, "\x00")
+
+		// Write the block to disk
+		_, err = buffer.Write(data)
+		if err != nil {
+			log.Printf("error writing file %s contents to disk\n", filePath)
+			return
+		}
+	}
+
+	buffer.Flush()
+	fmt.Printf("File %s saved to disk.\n", file)
 }
