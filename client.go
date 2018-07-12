@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 
 	"github.com/BrandonWade/contact"
 	"github.com/BrandonWade/synth"
@@ -72,10 +73,6 @@ func main() {
 	}
 
 	promptDownload(newFiles)
-
-	// TODO: This is a hack to let the goroutines finish running before terminating
-	for {
-	}
 }
 
 // promptDownload - prompt the user to download all new files from the server
@@ -107,6 +104,9 @@ func promptDownload(files []string) {
 
 // downloadFiles - download the provided list of files from the server
 func downloadFiles(files []string) {
+	var wg sync.WaitGroup
+	wg.Add(len(files))
+
 	for _, file := range files {
 		params := make(map[string]string)
 		params["file"] = file
@@ -114,12 +114,15 @@ func downloadFiles(files []string) {
 		conn := contact.NewConnection(bufferSize)
 		conn.Dial(serverHost, "/download", params)
 
-		go saveFile(conn, file)
+		go saveFile(conn, file, &wg)
 	}
+
+	wg.Wait()
 }
 
 // saveFile - read a file from the server and save it to disk
-func saveFile(conn *contact.Connection, file string) {
+func saveFile(conn *contact.Connection, file string, wg *sync.WaitGroup) {
+	defer wg.Done()
 	filePath := syncDir + file
 
 	filePtr, err := os.Create(filePath)
