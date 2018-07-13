@@ -33,7 +33,10 @@ func init() {
 		log.Fatal("error reading buffer size")
 	}
 
-	syncDir = os.Getenv("TEST_DIR")
+	syncDir = os.Getenv("SYNC_DIR")
+	if syncDir == "" {
+		log.Fatal("error reading sync directory")
+	}
 }
 
 func main() {
