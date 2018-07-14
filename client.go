@@ -75,7 +75,9 @@ func main() {
 		newFiles = append(newFiles, path)
 	}
 
-	promptDownload(newFiles)
+	if len(newFiles) > 0 {
+		promptDownload(newFiles)
+	}
 }
 
 // promptDownload - prompt the user to download all new files from the server
@@ -126,11 +128,13 @@ func downloadFiles(files []string) {
 // saveFile - read a file from the server and save it to disk
 func saveFile(conn *contact.Connection, file string, wg *sync.WaitGroup) {
 	defer wg.Done()
-	filePath := syncDir + file
+	fullPath := syncDir + file
 
-	filePtr, err := os.Create(filePath)
+	// Create the file and any parent directories
+	filePtr, err := synth.CreateFile(fullPath)
 	if err != nil {
-		log.Printf("error creating file %s\n", filePath)
+		log.Printf("error creating file %s\n", fullPath)
+		return
 	}
 	defer filePtr.Close()
 
@@ -139,7 +143,7 @@ func saveFile(conn *contact.Connection, file string, wg *sync.WaitGroup) {
 		// Get the next file block from the server
 		_, data, err := conn.Read()
 		if err != nil {
-			log.Printf("error reading file %s contents from connection\n", filePath)
+			log.Printf("error reading file %s contents from connection\n", fullPath)
 			return
 		}
 
@@ -155,7 +159,7 @@ func saveFile(conn *contact.Connection, file string, wg *sync.WaitGroup) {
 		// Write the block to disk
 		_, err = buffer.Write(data)
 		if err != nil {
-			log.Printf("error writing file %s contents to disk\n", filePath)
+			log.Printf("error writing file %s contents to disk\n", fullPath)
 			return
 		}
 	}

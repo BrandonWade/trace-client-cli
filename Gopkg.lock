@@ -11,7 +11,7 @@
   branch = "master"
   name = "github.com/BrandonWade/synth"
   packages = ["."]
-  revision = "e27c7583dd01f68c359099c1c8b3e8d8e62b9f98"
+  revision = "96d1f16956c7cb50e44de24d9ae135b7aa5ea665"
 
 [[projects]]
   name = "github.com/gorilla/websocket"
