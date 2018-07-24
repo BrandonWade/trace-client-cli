@@ -7,13 +7,17 @@ import (
 	"strings"
 )
 
-// Scan - returns a slice containing the path to each file in the specified dir
-func Scan(dir string) ([]string, error) {
-	files := []string{}
+// Scan - returns a slice containing the path and file pointer to each file in dir
+func Scan(dir string) ([]*File, error) {
+	files := []*File{}
 
 	err := filepath.Walk(dir, func(path string, file os.FileInfo, err error) error {
 		if !file.IsDir() {
-			files = append(files, path)
+			files = append(files, &File{
+				Path: path,
+				Size: file.Size(),
+				File: file,
+			})
 		}
 
 		return nil
@@ -22,16 +26,22 @@ func Scan(dir string) ([]string, error) {
 	return files, err
 }
 
-// TrimPaths - returns a copy of paths with subPath removed from every element
-func TrimPaths(paths []string, subPath string) []string {
-	trimmed := []string{}
+// TrimPaths - removes subPath from the Path of every element in files
+func TrimPaths(files []*File, subPath string) {
+	for _, file := range files {
+		file.Path = strings.Replace(file.Path, subPath, "", -1)
+	}
+}
 
-	for _, path := range paths {
-		t := strings.Replace(path, subPath, "", -1)
-		trimmed = append(trimmed, t)
+// GetPathSlice - returns a slice of strings containing the Path property in files
+func GetPathSlice(files []*File) []string {
+	paths := []string{}
+
+	for _, file := range files {
+		paths = append(paths, file.Path)
 	}
 
-	return trimmed
+	return paths
 }
 
 // CreateFile - creates a file and all folders along the path

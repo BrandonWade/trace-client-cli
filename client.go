@@ -55,41 +55,41 @@ func main() {
 	}
 
 	// Add an empty element to the end of the list to indicate the end
-	localFiles = synth.TrimPaths(localFiles, syncDir)
-	localFiles = append(localFiles, "")
+	synth.TrimPaths(localFiles, syncDir)
+	localFiles = append(localFiles, &synth.File{})
 
 	for _, file := range localFiles {
-		conn.Write(file)
+		conn.WriteJSON(file)
 	}
 
-	newFiles := []string{}
+	newFiles := []synth.File{}
 	for {
-		_, msg, _ := conn.Read()
+		file := synth.File{}
+		conn.ReadJSON(&file)
 
-		data := string(msg)
-		if data == "" {
+		if file.IsEmpty() {
 			break
 		}
 
-		path := filepath.ToSlash(data)
-		newFiles = append(newFiles, path)
+		file.Path = filepath.ToSlash(file.Path)
+		newFiles = append(newFiles, file)
 	}
 
 	if len(newFiles) > 0 {
-		promptDownload(newFiles)
+		promptDownload(&newFiles)
 	}
 }
 
 // promptDownload - prompt the user to download all new files from the server
-func promptDownload(files []string) {
-	for _, file := range files {
-		fmt.Println(file)
+func promptDownload(files *[]synth.File) {
+	for _, file := range *files {
+		fmt.Println(file.Path)
 	}
 	fmt.Println()
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Printf("Download %d new file(s)? [y/n]: ", len(files))
+		fmt.Printf("Download %d new file(s)? [y/n]: ", len(*files))
 
 		response, err := reader.ReadString('\n')
 		if err != nil {
@@ -108,18 +108,18 @@ func promptDownload(files []string) {
 }
 
 // downloadFiles - download the provided list of files from the server
-func downloadFiles(files []string) {
+func downloadFiles(files *[]synth.File) {
 	var wg sync.WaitGroup
-	wg.Add(len(files))
+	wg.Add(len(*files))
 
-	for _, file := range files {
+	for _, file := range *files {
 		params := make(map[string]string)
-		params["file"] = file
+		params["file"] = file.Path
 
 		conn := contact.NewConnection(bufferSize)
 		conn.Dial(serverHost, "/download", params)
 
-		go saveFile(conn, file, &wg)
+		go saveFile(conn, file.Path, &wg)
 	}
 
 	wg.Wait()
