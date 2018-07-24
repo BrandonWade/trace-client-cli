@@ -82,14 +82,16 @@ func main() {
 
 // promptDownload - prompt the user to download all new files from the server
 func promptDownload(files *[]synth.File) {
+	totalSize := int64(0)
 	for _, file := range *files {
-		fmt.Println(file.Path)
+		fmt.Printf("%6d bytes  %s\n", file.Size, file.Path)
+		totalSize += file.Size
 	}
 	fmt.Println()
 
 	reader := bufio.NewReader(os.Stdin)
 	for {
-		fmt.Printf("Download %d new file(s)? [y/n]: ", len(*files))
+		fmt.Printf("Download %d new file(s)? (%d bytes total) [y/n]: ", len(*files), totalSize)
 
 		response, err := reader.ReadString('\n')
 		if err != nil {
