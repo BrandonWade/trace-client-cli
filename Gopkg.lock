@@ -14,6 +14,12 @@
   revision = "5b6a4433353f96c3103273d8d7c34404eedf0196"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/c2h5oh/datasize"
+  packages = ["."]
+  revision = "4eba002a5eaea69cf8d235a388fc6b65ae68d2dd"
+
+[[projects]]
   name = "github.com/gorilla/websocket"
   packages = ["."]
   revision = "ea4d1f681babbce9545c9c5f3d5194a789c89f5b"
@@ -28,6 +34,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5027b80d22ed09cfd3766179b7926499bc491c3ab167054cc8891da0df421107"
+  inputs-digest = "5efddb88942dca17b70a73fb7c95770b77c41269ec4d853ae133b1b4753c0078"
   solver-name = "gps-cdcl"
   solver-version = 1

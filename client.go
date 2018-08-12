@@ -13,6 +13,7 @@ import (
 
 	"github.com/BrandonWade/contact"
 	"github.com/BrandonWade/synth"
+	"github.com/c2h5oh/datasize"
 	"github.com/joho/godotenv"
 )
 
@@ -40,7 +41,7 @@ func init() {
 }
 
 func main() {
-	fmt.Printf("Syncing directory %s with server...\n", syncDir)
+	fmt.Printf("\nSyncing directory %s with server...\n", syncDir)
 
 	serverHost = os.Getenv("TRACE_SERVER_HOST")
 	conn := contact.NewConnection(bufferSize)
@@ -83,15 +84,27 @@ func main() {
 // promptDownload - prompt the user to download all new files from the server
 func promptDownload(files *[]synth.File) {
 	totalSize := int64(0)
+	var bs datasize.ByteSize
+
 	for _, file := range *files {
-		fmt.Printf("%6d bytes  %s\n", file.Size, file.Path)
+		err := bs.UnmarshalText([]byte(strconv.FormatInt(file.Size, 10)))
+		if err != nil {
+			log.Printf("error converting file size %d\n", file.Size)
+		}
+
+		fmt.Printf("%10s %s\n", bs.HumanReadable(), file.Path)
 		totalSize += file.Size
 	}
 	fmt.Println()
 
 	reader := bufio.NewReader(os.Stdin)
+	err := bs.UnmarshalText([]byte(strconv.FormatInt(totalSize, 10)))
+	if err != nil {
+		log.Printf("error converting total file size %d\n", totalSize)
+	}
+
 	for {
-		fmt.Printf("Download %d new file(s)? (%d bytes total) [y/n]: ", len(*files), totalSize)
+		fmt.Printf("Download %d new file(s)? (%s total) [y/n]: ", len(*files), bs.HumanReadable())
 
 		response, err := reader.ReadString('\n')
 		if err != nil {
@@ -114,6 +127,7 @@ func downloadFiles(files *[]synth.File) {
 	var wg sync.WaitGroup
 	wg.Add(len(*files))
 
+	fmt.Println()
 	for _, file := range *files {
 		params := make(map[string]string)
 		params["file"] = file.Path
@@ -125,6 +139,7 @@ func downloadFiles(files *[]synth.File) {
 	}
 
 	wg.Wait()
+	fmt.Println()
 }
 
 // saveFile - read a file from the server and save it to disk
