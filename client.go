@@ -165,7 +165,6 @@ func saveFile(conn *contact.Connection, file string, wg *sync.WaitGroup) {
 		}
 
 		// An empty message indicates the end of the file
-		// NOTE: Is this necessary? Might be able to just close the Connection instead
 		if len(data) == 0 {
 			break
 		}

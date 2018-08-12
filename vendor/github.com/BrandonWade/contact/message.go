@@ -6,7 +6,7 @@ type Message struct {
 	Body string      `json:"body"`
 }
 
-// IsEmpty - check whether a given Message is empty
+// IsEmpty - return a bool indicating whether a Message is empty
 func (m *Message) IsEmpty() bool {
 	return m.Meta == nil && m.Body == ""
 }

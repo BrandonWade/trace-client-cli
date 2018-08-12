@@ -5,7 +5,7 @@
   branch = "master"
   name = "github.com/BrandonWade/contact"
   packages = ["."]
-  revision = "074eedcba2efb62732edf7c47a84134fa2f93bf9"
+  revision = "317422b31580d83684af983a240c9d6c3ec9e912"
 
 [[projects]]
   branch = "master"
@@ -34,6 +34,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5efddb88942dca17b70a73fb7c95770b77c41269ec4d853ae133b1b4753c0078"
+  inputs-digest = "b2a8b435542e341a0f0be9d37fc318d0e779f2ef592c61e8e1bc23a1026e8d05"
   solver-name = "gps-cdcl"
   solver-version = 1

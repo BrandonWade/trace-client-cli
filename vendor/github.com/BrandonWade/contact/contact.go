@@ -8,6 +8,23 @@ import (
 	"github.com/gorilla/websocket"
 )
 
+const (
+	// TextMessage - denotes a text data message
+	TextMessage = websocket.TextMessage
+
+	// BinaryMessage - denotes a binary data message
+	BinaryMessage = websocket.BinaryMessage
+
+	// CloseMessage - denotes a close control message
+	CloseMessage = websocket.CloseMessage
+
+	// PingMessage - denotes a ping control message
+	PingMessage = websocket.PingMessage
+
+	// PongMessage - denotes a pong control message
+	PongMessage = websocket.PongMessage
+)
+
 // Connection - represents a websocket connection
 type Connection struct {
 	conn     *websocket.Conn
@@ -68,6 +85,7 @@ func (c *Connection) WriteJSON(m interface{}) {
 	c.conn.WriteJSON(m)
 }
 
+// Write - writes a text string to the websocket connection
 func (c *Connection) Write(s string) {
 	c.conn.WriteMessage(websocket.TextMessage, []byte(s))
 }
@@ -79,6 +97,6 @@ func (c *Connection) WriteBinary(data []byte) {
 
 // Close - closes an open websocket connection
 func (c *Connection) Close() {
-	c.conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	c.conn.WriteMessage(websocket.CloseMessage, nil)
 	c.conn.Close()
 }
